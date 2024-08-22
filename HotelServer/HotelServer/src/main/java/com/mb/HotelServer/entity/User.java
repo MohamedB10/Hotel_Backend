@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.mb.HotelServer.dto.UserDto;
 import com.mb.HotelServer.enums.UserRole;
 
 import jakarta.persistence.Entity;
@@ -50,6 +51,14 @@ public class User implements UserDetails{
 		return this.email;
 	}
 	
-	
+	public UserDto getUserDto() {
+		UserDto dto = new UserDto();
+		dto.setId(id);
+		dto.setName(name);
+		dto.setEmail(email);
+		dto.setUserRole(userRole);
+		
+		return dto;
+	}
 	
 }

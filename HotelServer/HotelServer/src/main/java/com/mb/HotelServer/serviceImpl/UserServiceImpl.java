@@ -6,16 +6,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mb.HotelServer.dto.SignupRequest;
+import com.mb.HotelServer.dto.UserDto;
 import com.mb.HotelServer.entity.User;
 import com.mb.HotelServer.enums.UserRole;
 import com.mb.HotelServer.repository.UserRepository;
+import com.mb.HotelServer.service.UserService;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepository;
 	
@@ -38,6 +42,21 @@ public class UserServiceImpl {
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+	
+	public UserDto createUser(SignupRequest signupRequest) {
+		if(userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+			throw new EntityExistsException("User Already Present With email " + signupRequest.getEmail());
+		}
+		
+		User user = new User();
+		user.setEmail(signupRequest.getEmail());
+		user.setName(signupRequest.getName());
+		user.setUserRole(UserRole.CUSTOMER);
+		user.setPassword(new BCryptPasswordEncoder().encode(signupRequest.getPassword()));
+		
+		User createdUser = userRepository.save(user);
+		return createdUser.getUserDto();
 	}
 
 }
